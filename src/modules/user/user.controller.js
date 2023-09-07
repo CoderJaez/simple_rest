@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { User } from "./user.model.js";
+import TryCatch from "../../utils/tryCatch.js";
 
 export const controller = {
   Get: async (req, res) => {
@@ -10,18 +11,13 @@ export const controller = {
 
     return res.status(200).json(result);
   },
-  Post: async (req, res) => {
+  Post: TryCatch(async (req, res, next) => {
     const data = req.body;
-    try {
-      let user = new User(data); //{email: data.email}
-      user = await user.save();
-      if (!user) return res.status(500).json({ message: "failed" });
-      return res.status(200).json({ message: "Success", data: user });
-    } catch (error) {
-      console.log(error);
-      return res.status(500).json({ message: "Server Error" });
-    }
-  },
+    let user = new User(data); //{email: data.email}
+    user = await user.save();
+    if (!user) return res.status(500).json({ message: "failed" });
+    return res.status(200).json({ message: "Success", data: user });
+  }),
   Put: async (req, res) => {
     const data = req.body;
     const { id } = req.params;
